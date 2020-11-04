@@ -17,7 +17,7 @@ try:
           "name" : "hugo",
           "hostName" : "hugo.example.com",
           "networkInterface" : {
-            "externalLogicalInterfaceName" : "EXT0",
+            "externalLogicalInterfaceName" : "NIC0",
             "ipV4Address" : "87.239.214.12/24",
             "http" : {
               "enabled" : true,
@@ -47,7 +47,7 @@ try:
     """)
     mId = m.json()['data']['id']
     resp = mapping_client.connect_virtual_host(mId, vhId)
-    print(resp)
+    config_client.save("hugo")
 
 
 finally:

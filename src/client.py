@@ -73,6 +73,12 @@ class ConfigurationClient:
     def load_current_active_configuration(self):
         return self.client.post("/airlock/rest/configuration/configurations/load-active")
 
+    def save(self, comment):
+        return self.client.post(
+            path="/airlock/rest/configuration/configurations/save",
+            data=f"{{ \"comment\" : \"{comment}\" }}"
+        )
+
 
 class ResourceClient:
     def __init__(self, http_client, base_path):
@@ -130,6 +136,24 @@ class ResourceClient:
 class NodeClient(ResourceClient):
     def __init__(self, http_client):
         super().__init__(http_client, "/airlock/rest/configuration/nodes")
+
+
+class OpenAPIClient(ResourceClient):
+    def __init__(self, http_client):
+        super().__init__(http_client, "/airlock/rest/configuration/api-security/openapi-documents")
+
+    def upload(self, id, data):
+        return self.client.patch(
+            path=f"{self.base_path}/{id}",
+            headers={
+                'Accept': 'application/json',
+                'Content-Type': 'application/octet-stream'
+            },
+            data=data
+        )
+
+    def connect_mapping(self, id, ref_id):
+        return self.connect_to_resources(id, ref_id, "mappings", "mapping")
 
 
 class SSLCertificateClient(ResourceClient):
