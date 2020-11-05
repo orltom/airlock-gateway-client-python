@@ -1,55 +1,8 @@
-import requests
-
-
-class HttpClient:
-    def __init__(self, host_name):
-        self.host_name = host_name
-        self.session = requests.session()
-
-    def get(self, path, headers={'Accept': 'application/json'}):
-        return self.session.get(
-            url=self.url(path),
-            headers=headers,
-            verify=False
-        )
-
-    def post(self, path, data=None, headers={'Accept': 'application/json', 'Content-Type': 'application/json'}):
-        return self.session.post(
-            url=self.url(path),
-            headers=headers,
-            data=data,
-            verify=False
-        )
-
-    def put(self, path, data=None, headers={'Accept': 'application/json', 'Content-Type': 'application/json'}):
-        return self.session.put(
-            url=self.url(path),
-            headers=headers,
-            data=data,
-            verify=False
-        )
-
-    def patch(self, path, data=None, headers={'Accept': 'application/json', 'Content-Type': 'application/json'}):
-        return self.session.patch(
-            url=self.url(path),
-            headers=headers,
-            data=data,
-            verify=False
-        )
-
-    def delete(self, path, headers={'Accept': 'application/json', 'Content-Type': 'application/json'}):
-        return self.session.delete(
-            self.url(path),
-            headers=headers,
-            verify=False
-        )
-
-    def url(self, path):
-        return f"{self.host_name}{path}"
+from .httpclient import HttpClient
 
 
 class SessionClient:
-    def __init__(self, http_client, token):
+    def __init__(self, http_client: type(HttpClient), token: str):
         self.client = http_client
         self.token = token
 
@@ -67,13 +20,13 @@ class SessionClient:
 
 
 class ConfigurationClient:
-    def __init__(self, http_client):
+    def __init__(self, http_client: type(HttpClient)):
         self.client = http_client
 
     def load_current_active_configuration(self):
         return self.client.post("/airlock/rest/configuration/configurations/load-active")
 
-    def save(self, comment):
+    def save(self, comment: str):
         return self.client.post(
             path="/airlock/rest/configuration/configurations/save",
             data=f"{{ \"comment\" : \"{comment}\" }}"
@@ -81,14 +34,14 @@ class ConfigurationClient:
 
 
 class ResourceClient:
-    def __init__(self, http_client, base_path):
+    def __init__(self, http_client: type(HttpClient), base_path: str):
         self.client = http_client
         self.base_path = base_path
 
     def all(self):
         return self.client.get(self.base_path)
 
-    def get(self, id):
+    def get(self, id: str):
         return self.client.get(f"{self.base_path}/{id}")
 
     def create(self, data):
@@ -97,16 +50,16 @@ class ResourceClient:
             data=data
         )
 
-    def update(self, id, data):
+    def update(self, id: str, data):
         return self.client.patch(
             path=f"{self.base_path}/{id}",
             data=data
         )
 
-    def delete(self, id):
+    def delete(self, id: str):
         return self.client.delete(f"{self.base_path}/{id}")
 
-    def connect_to_resources(self, id, ref_id, ref_path, ref_type):
+    def connect_to_resources(self, id: str, ref_id: str, ref_path: str, ref_type: str):
         return self.client.patch(
             path=f"{self.base_path}/{id}/relationships/{ref_path}",
             data=(
@@ -119,7 +72,7 @@ class ResourceClient:
             )
         )
 
-    def connect_to_resource(self, id, ref_id, ref_path, ref_type):
+    def connect_to_resource(self, id: str, ref_id: str, ref_path: str, ref_type: str):
         return self.client.patch(
             path=f"{self.base_path}/{id}/relationships/{ref_path}",
             data=(
@@ -134,12 +87,12 @@ class ResourceClient:
 
 
 class NodeClient(ResourceClient):
-    def __init__(self, http_client):
+    def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/nodes")
 
 
 class OpenAPIClient(ResourceClient):
-    def __init__(self, http_client):
+    def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/api-security/openapi-documents")
 
     def upload(self, id, data):
@@ -152,12 +105,12 @@ class OpenAPIClient(ResourceClient):
             data=data
         )
 
-    def connect_mapping(self, id, ref_id):
+    def connect_mapping(self, id: str, ref_id: str):
         return self.connect_to_resources(id, ref_id, "mappings", "mapping")
 
 
 class SSLCertificateClient(ResourceClient):
-    def __init__(self, http_client):
+    def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/ssl-certificates")
 
     def connect_virtual_host(self, id, ref_id):
@@ -165,30 +118,30 @@ class SSLCertificateClient(ResourceClient):
 
 
 class VirtualHostClient(ResourceClient):
-    def __init__(self, http_client):
+    def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/virtual-hosts")
 
-    def connect_ssl_certificate(self, id, ref_id):
+    def connect_ssl_certificate(self, id: str, ref_id: str):
         return self.connect_to_resource(id, ref_id, "ssl-certificate", "ssl-certificate")
 
-    def connect_mapping(self, id, ref_id):
+    def connect_mapping(self, id: str, ref_id: str):
         return self.connect_to_resources(id, ref_id, "mappings", "mapping")
 
 
 class MappingClient(ResourceClient):
-    def __init__(self, http_client):
+    def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/mappings")
 
-    def connect_virtual_host(self, id, ref_id):
+    def connect_virtual_host(self, id: str, ref_id: str):
         return self.connect_to_resources(id, ref_id, "virtual-hosts", "virtual-host")
 
-    def connect_back_end_group(self, id, ref_id):
+    def connect_back_end_group(self, id: str, ref_id: str):
         return self.connect_to_resource(id, ref_id, "back-end-group", "back-end-group")
 
 
 class BackendGroupClient(ResourceClient):
-    def __init__(self, http_client):
+    def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/back-end-groups")
 
-    def connect_mapping(self, id, ref_id):
+    def connect_mapping(self, id: str, ref_id: str):
         return self.connect_to_resources(id, ref_id, "mappings", "mapping")

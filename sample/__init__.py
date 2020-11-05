@@ -1,2 +1,2 @@
-from src.client import *
+from src.resourceclient import *
 
