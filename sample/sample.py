@@ -8,7 +8,7 @@ session = SessionClient(http_client, token)
 try:
     session.create()
     config_client = ConfigurationClient(http_client)
-    config_client.load_current_active_configuration()
+    config_client.load_current_active()
     virtual_host_client = VirtualHostClient(http_client)
     vh = virtual_host_client.create(data="""
     {
