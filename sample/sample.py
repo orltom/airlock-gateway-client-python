@@ -5,52 +5,78 @@ token = "eyJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiZGlyIn0..gae_uBITEwOzFNq54BJBww
 http_client = HttpClient("http://al-waf-docker-local-stack:8080")
 session = SessionClient(http_client, token)
 
-try:
-    session.create()
-    config_client = ConfigurationClient(http_client)
-    config_client.load_current_active()
-    virtual_host_client = VirtualHostClient(http_client)
-    vh = virtual_host_client.create(data="""
-    {
-      "data" : {
-        "type" : "virtual-host",
-        "attributes" : {
-          "name" : "hugo",
-          "hostName" : "hugo.example.com",
-          "networkInterface" : {
-            "externalLogicalInterfaceName" : "NIC0",
-            "ipV4Address" : "87.239.214.12/24",
-            "http" : {
-              "enabled" : true,
-              "port" : 80,
-              "httpsRedirectEnforced" : false
+
+def main():
+    try:
+        session.create()
+        config_client = ConfigurationClient(http_client)
+        config_client.load_current_active()
+        virtual_host_client = VirtualHostClient(http_client)
+        vh = virtual_host_client.create("""
+        {
+          "data" : {
+            "type" : "virtual-host",
+            "attributes" : {
+              "name" : "example.cm",
+              "hostName" : "hugo.example.com",
+              "networkInterface" : {
+                "externalLogicalInterfaceName" : "NIC0",
+                "ipV4Address" : "87.239.214.12/24",
+                "http" : {
+                  "enabled" : true,
+                  "port" : 80,
+                  "httpsRedirectEnforced" : false
+                }
+              }
             }
           }
         }
-      }
-    }
-    """)
-    vhId = vh.json()['data']['id']
-    mapping_client = MappingClient(http_client)
-    m = mapping_client.create(data="""
-    {
-        "data" : {
-            "type" : "mapping",
-            "attributes" : {
-              "name" : "hugo",
-              "entryPath" : {
-                "value" : "/"
-              },
-              "backendPath" : "/"
+        """)
+        vh_id = vh.json()['data']['id']
+        mapping_client = MappingClient(http_client)
+        m = mapping_client.create("""
+        {
+            "data" : {
+                "type" : "mapping",
+                "attributes" : {
+                  "name" : "auth",
+                  "entryPath" : {
+                    "value" : "/"
+                  },
+                  "backendPath" : "/"
+                }
             }
         }
-    }
-    """)
-    mId = m.json()['data']['id']
-    mapping_client.connect_virtual_host(mId, vhId)
-    config_client.save("hugo")
-except Exception as e:
-    print("unexpected error occurs.", e)
-    exit(1)
-finally:
-    session.terminate()
+        """)
+        m_id = m.json()['data']['id']
+        mapping_client.connect_virtual_host(m_id, vh_id)
+        backend_group_client = BackendGroupClient(http_client)
+        b = backend_group_client.create("""
+        {
+          "data" : {
+            "type" : "back-end-group",
+            "attributes" : {
+              "name" : "tomcat",
+              "backendHosts" : [ {
+                "protocol" : "HTTP",
+                "hostName" : "example.com",
+                "port" : 80,
+                "mode" : "ENABLED",
+                "spare" : false,
+                "weight" : 200
+              } ]
+            }
+          }
+        }
+        """)
+        b_id = b.json()['data']['id']
+        mapping_client.connect_back_end_group(m_id, b_id)
+        config_client.activate("sample: actvate")
+    except Exception as e:
+        print("unexpected error occurs.", e)
+        exit(1)
+    finally:
+        session.terminate()
+
+
+main()
