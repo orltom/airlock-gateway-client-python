@@ -1,7 +1,7 @@
 from .httpclient import HttpClient
 
 
-class ResourceClient:
+class ResourceRUClient:
     def __init__(self, http_client: type(HttpClient), base_path: str):
         self.client = http_client
         self.base_path = base_path
@@ -42,9 +42,9 @@ class ResourceCRUDClient:
     def delete(self, id: str):
         return self.client.delete(f"{self.base_path}/{id}")
 
-    def connect_to_resources(self, id: str, ref_id: str, ref_path: str, ref_type: str):
+    def connect_to_resources(self, id: str, ref_id: str, ref_type: str):
         return self.client.patch(
-            path=f"{self.base_path}/{id}/relationships/{ref_path}",
+            path=f"{self.base_path}/{id}/relationships/{ref_type}s",
             data=(
                 "{"
                 "\"data\" : [{"
@@ -55,9 +55,9 @@ class ResourceCRUDClient:
             )
         )
 
-    def connect_to_resource(self, id: str, ref_id: str, ref_path: str, ref_type: str):
+    def connect_to_resource(self, id: str, ref_id: str, ref_type: str):
         return self.client.patch(
-            path=f"{self.base_path}/{id}/relationships/{ref_path}",
+            path=f"{self.base_path}/{id}/relationships/{ref_type}",
             data=(
                 "{"
                 "\"data\" : {"
@@ -68,9 +68,9 @@ class ResourceCRUDClient:
             )
         )
 
-    def disconnect_to_resources(self, id: str, ref_id: str, ref_path: str, ref_type: str):
+    def disconnect_to_resources(self, id: str, ref_id: str, ref_type: str):
         return self.client.delete(
-            path=f"{self.base_path}/{id}/relationships/{ref_path}",
+            path=f"{self.base_path}/{id}/relationships/{ref_type}s",
             data=(
                 "{"
                 "\"data\" : [{"
@@ -81,9 +81,9 @@ class ResourceCRUDClient:
             )
         )
 
-    def disconnect_to_resource(self, id: str, ref_id: str, ref_path: str, ref_type: str):
+    def disconnect_to_resource(self, id: str, ref_id: str, ref_type: str):
         return self.client.delete(
-            path=f"{self.base_path}/{id}/relationships/{ref_path}",
+            path=f"{self.base_path}/{id}/relationships/{ref_type}",
             data=(
                 "{"
                 "\"data\" : {"
@@ -93,6 +93,14 @@ class ResourceCRUDClient:
                 "}"
             )
         )
+
+
+class AirlockSession:
+    def __init__(self, http_client: type(HttpClient)):
+        self.client = http_client
+
+    def terminate(self):
+        return self.client.post("/airlock/rest/session/terminate")
 
 
 class AuthenticationClient:
@@ -101,16 +109,16 @@ class AuthenticationClient:
         self.token = token
 
     def create(self):
-        return self.client.post(
+        resp = self.client.post(
             path="/airlock/rest/session/create",
             headers={
                 'Authorization': f"Bearer {self.token}",
                 'Accept': 'application/json'
             }
         )
-
-    def terminate(self):
-        return self.client.post("/airlock/rest/session/terminate")
+        if resp.status_code == 200:
+            return AirlockSession(http_client=self.client)
+        raise Exception("Authentication failed.")
 
 
 class ConfigurationClient:
@@ -158,41 +166,126 @@ class ConfigurationClient:
         )
 
 
+class SystemTemplateClient:
+    def __init__(self, http_client: type(HttpClient)):
+        self.client = http_client
+
+    def all(self):
+        return self.client.get("/configuration/templates/mappings")
+
+
 class VirtualHostClient(ResourceCRUDClient):
     def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/virtual-hosts")
 
+    def upload_crl(self, id: str, data):
+        return self.client.put(
+            path=f"/configuration/virtual-hosts/{id}/crl",
+            headers={
+                "Content-Type": "application/pkix-crl",
+                "Accept": "application/json"
+            },
+            data=data
+        )
+
+    def delete_crl(self, id: str, data):
+        return self.client.delete(
+            path=f"/configuration/virtual-hosts/{id}/crl",
+            headers={
+                "Content-Type": "application/pkix-crl",
+                "Accept": "application/json"
+            },
+            data=data
+        )
+
     def connect_ssl_certificate(self, id: str, ref_id: str):
-        return self.connect_to_resource(id, ref_id, "ssl-certificate", "ssl-certificate")
+        return self.connect_to_resource(id, ref_id, "ssl-certificate")
 
     def connect_mapping(self, id: str, ref_id: str):
-        return self.connect_to_resources(id, ref_id, "mappings", "mapping")
+        return self.connect_to_resources(id, ref_id, "mapping")
 
     def disconnect_ssl_certificate(self, id: str, ref_id: str):
-        return self.disconnect_to_resource(id, ref_id, "ssl-certificate", "ssl-certificate")
+        return self.disconnect_to_resource(id, ref_id, "ssl-certificate")
 
     def disconnect_mapping(self, id: str, ref_id: str):
-        return self.disconnect_to_resources(id, ref_id, "mappings", "mapping")
+        return self.disconnect_to_resources(id, ref_id, "mapping")
 
 
 class MappingClient(ResourceCRUDClient):
     def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/mappings")
 
+    def export(self, id: str):
+        return self.client.get(
+            path=f"/configuration/mappings/{id}/export",
+            headers={"Accept": "application/zip"}
+        )
+
+    def import_as_new_or_replace(self, data):
+        return self.client.put(
+            path="/configuration/mappings/import",
+            headers={
+                "Content-Type": "application/zip",
+                "Accept": "application/json"
+            },
+            data=data
+        )
+
+    def import_as_new_copy(self, data):
+        return self.client.post(
+            path="/configuration/mappings/import",
+            headers={
+                "Content-Type": "application/zip",
+                "Accept": "application/json"
+            },
+            data=data
+        )
+
+    def apply_unlock_settings_from_source_mapping(self, id: str):
+        return self.client.post(
+            path=f"/configuration/mappings/{id}/pull-from-source-mapping",
+        )
+
+    def apply_unlock_settings_from_import(self, data):
+        return self.client.post(
+            path="/configuration/mappings/pull-from-uploaded-mappings",
+            headers={
+                "Content-Type": "application/zip",
+                "Accept": "application/json"
+            },
+            data=data
+        )
+
     def connect_virtual_host(self, id: str, ref_id: str):
-        return self.connect_to_resources(id, ref_id, "virtual-hosts", "virtual-host")
+        return self.connect_to_resources(id, ref_id, "virtual-host")
 
     def connect_back_end_group(self, id: str, ref_id: str):
-        return self.connect_to_resource(id, ref_id, "back-end-group", "back-end-group")
+        return self.connect_to_resource(id, ref_id, "back-end-group")
 
     def connect_open_api(self, id: str, ref_id: str):
-        return self.connect_to_resource(id, ref_id, "openapi-document", "openapi-document")
+        return self.connect_to_resource(id, ref_id, "openapi-document")
+
+    def connect_ip_address_whitelist(self, id: str, ref_id: str):
+        return self.connect_to_resources(id, ref_id, "ip-address-whitelist")
+
+    def connect_ip_address_blacklist(self, id: str, ref_id: str):
+        return self.connect_to_resources(id, ref_id, "ip-address-blacklist")
 
     def disconnect_virtual_host(self, id: str, ref_id: str):
-        return self.disconnect_to_resources(id, ref_id, "virtual-hosts", "virtual-host")
+        return self.disconnect_to_resources(id, ref_id, "virtual-host")
 
     def disconnect_back_end_group(self, id: str, ref_id: str):
-        return self.disconnect_to_resource(id, ref_id, "back-end-group", "back-end-group")
+        return self.disconnect_to_resource(id, ref_id, "back-end-group")
+
+    def disconnect_open_api(self, id: str, ref_id: str):
+        return self.disconnect_to_resource(id, ref_id, "openapi-document")
+
+    def disconnect_ip_address_whitelist(self, id: str, ref_id: str):
+        return self.disconnect_to_resources(id, ref_id, "ip-address-whitelist")
+
+
+def disconnect_ip_address_blacklist(self, id: str, ref_id: str):
+    return self.disconnect_to_resources(id, ref_id, "ip-address-blacklists", "ip-address-blacklist")
 
 
 class BackendGroupClient(ResourceCRUDClient):
@@ -200,10 +293,10 @@ class BackendGroupClient(ResourceCRUDClient):
         super().__init__(http_client, "/airlock/rest/configuration/back-end-groups")
 
     def connect_mapping(self, id: str, ref_id: str):
-        return self.connect_to_resources(id, ref_id, "mappings", "mapping")
+        return self.connect_to_resources(id, ref_id, "mapping")
 
     def disconnect_mapping(self, id: str, ref_id: str):
-        return self.disconnect_to_resources(id, ref_id, "mappings", "mapping")
+        return self.disconnect_to_resources(id, ref_id, "mapping")
 
 
 class SSLCertificateClient(ResourceCRUDClient):
@@ -211,10 +304,10 @@ class SSLCertificateClient(ResourceCRUDClient):
         super().__init__(http_client, "/airlock/rest/configuration/ssl-certificates")
 
     def connect_virtual_host(self, id, ref_id):
-        return self.connect_to_resources(id, ref_id, "virtual-hosts", "virtual-host")
+        return self.connect_to_resources(id, ref_id, "virtual-host")
 
     def disconnect_virtual_host(self, id, ref_id):
-        return self.disconnect_to_resources(id, ref_id, "virtual-hosts", "virtual-host")
+        return self.disconnect_to_resources(id, ref_id, "virtual-host")
 
 
 class OpenAPIClient(ResourceCRUDClient):
@@ -232,10 +325,10 @@ class OpenAPIClient(ResourceCRUDClient):
         )
 
     def connect_mapping(self, id: str, ref_id: str):
-        return self.connect_to_resources(id, ref_id, "mappings", "mapping")
+        return self.connect_to_resources(id, ref_id, "mapping")
 
     def disconnect_mapping(self, id: str, ref_id: str):
-        return self.disconnect_to_resources(id, ref_id, "mappings", "mapping")
+        return self.disconnect_to_resources(id, ref_id, "mapping")
 
 
 class IPAddressList(ResourceCRUDClient):
@@ -243,16 +336,16 @@ class IPAddressList(ResourceCRUDClient):
         super().__init__(http_client, "/airlock/rest/configuration/ip-address-lists")
 
     def connect_mapping_whitelist(self, id: str, ref_id: str):
-        return self.connect_to_resources(id, ref_id, "mappings-whitelist", "mapping")
+        return self.connect_to_resources(id, ref_id, "mapping")
 
     def connect_mapping_blacklist(self, id: str, ref_id: str):
-        return self.connect_to_resources(id, ref_id, "mappings-blacklist", "mapping")
+        return self.connect_to_resources(id, ref_id, "mapping")
 
     def connect_mapping_blacklist_exception(self, id: str, ref_id: str):
-        return self.connect_to_resources(id, ref_id, "mappings-blacklist-exception", "mapping")
+        return self.connect_to_resources(id, ref_id, "mapping")
 
     def connect_mapping_request_frequency_filter(self, id: str, ref_id: str):
-        return self.connect_to_resources(id, ref_id, "mappings-request-frequency-filter-whitelist", "mapping")
+        return self.connect_to_resources(id, ref_id, "mapping")
 
 
 def disconnect_mapping_whitelist(self, id: str, ref_id: str):
@@ -271,12 +364,12 @@ def disconnect_mapping_request_frequency_filter(self, id: str, ref_id: str):
     return self.disconnect_to_resources(id, ref_id, "mappings-request-frequency-filter-whitelist", "mapping")
 
 
-class DynamicIPAddressBlackList(ResourceClient):
+class DynamicIPAddressBlackList(ResourceRUClient):
     def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/session")
 
 
-class LicenseClient(ResourceClient):
+class LicenseClient(ResourceRUClient):
     def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/log")
 
@@ -286,7 +379,7 @@ class NodeClient(ResourceCRUDClient):
         super().__init__(http_client, "/airlock/rest/configuration/nodes")
 
 
-class DefaultGatewayClient(ResourceClient):
+class DefaultGatewayClient(ResourceRUClient):
     def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/routes/default")
 
@@ -306,7 +399,7 @@ class HostClient(ResourceCRUDClient):
         super().__init__(http_client, "/airlock/rest/configuration/hosts")
 
 
-class NetworkServiceClient(ResourceClient):
+class NetworkServiceClient(ResourceRUClient):
     def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/network-service")
 
@@ -321,10 +414,10 @@ class KerberosEnvironmentClient(ResourceCRUDClient):
         super().__init__(http_client, "/airlock/rest/configuration/kerberos-environments")
 
     def connect_back_end_group(self, id: str, ref_id: str):
-        return super().connect_to_resources(id, ref_id, "back-end-groups", "back-end-group")
+        return super().connect_to_resources(id, ref_id, "back-end-group")
 
     def disconnect_back_end_group(self, id: str, ref_id: str):
-        return super().disconnect_to_resources(id, ref_id, "back-end-groups", "back-end-group")
+        return super().disconnect_to_resources(id, ref_id, "back-end-group")
 
 
 class AllowedNetworkEnvironmentClient(ResourceCRUDClient):
@@ -337,18 +430,18 @@ class APIPolicyServiceClient(ResourceCRUDClient):
         super().__init__(http_client, "/airlock/rest/configuration/api-policy-services")
 
     def connect_mapping(self, id: str, ref_id: str):
-        return super().connect_to_resources(id, ref_id, "mappings", "mapping")
+        return super().connect_to_resources(id, ref_id, "mapping")
 
     def disconnect_mapping(self, id: str, ref_id: str):
-        return super().disconnect_to_resources(id, ref_id, "mappings", "mapping")
+        return super().disconnect_to_resources(id, ref_id, "mapping")
 
 
-class LogSettingsClient(ResourceClient):
+class LogSettingsClient(ResourceRUClient):
     def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/license")
 
 
-class ReportingSettingsClient(ResourceClient):
+class ReportingSettingsClient(ResourceRUClient):
     def __init__(self, http_client: type(HttpClient)):
         super().__init__(http_client, "/airlock/rest/configuration/reporting")
 

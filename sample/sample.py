@@ -8,7 +8,7 @@ auth_client = AuthenticationClient(http_client=http_client, token=token)
 
 def main():
     try:
-        auth_client.create()
+        airlock_session = auth_client.create()
         config_client = ConfigurationClient(http_client)
         config_client.load_current_active()
         virtual_host_client = VirtualHostClient(http_client)
@@ -76,7 +76,7 @@ def main():
         print("unexpected error occurs.", e)
         exit(1)
     finally:
-        auth_client.terminate()
+        airlock_session.terminate()
 
 
 main()
