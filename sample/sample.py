@@ -10,15 +10,15 @@ token = "eyJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiZGlyIn0..gae_uBITEwOzFNq54BJBww
         "G2Sfds3ozinuXzcj-lPCmWY-vEui_32xIBi1mYAmzbxFzM2dQRUl_Y1fCP8lC7gCdV7V0D1icOeo.Jfw7wqqC60bz_kR0XNHMGYGJ" \
         "YN69OtpKEyQ-gET2NOQ "
 http_client = DefaultHttpClient("http://al-waf-docker-local-stack:8080")
-auth_client = AuthenticationClient(http_client=http_client, token=token)
 
 
 def main():
     try:
-        airlock_session = auth_client.create()
-        config_client = ConfigurationClient(http_client)
+        auth_client = AuthenticationClient(http_client=http_client, token=token)
+        session = auth_client.create()
+        config_client = ConfigurationClient(session)
         config_client.load_current_active()
-        virtual_host_client = VirtualHostClient(http_client)
+        virtual_host_client = VirtualHostClient(session)
         vh = virtual_host_client.create("""
         {
           "data" : {
@@ -40,7 +40,7 @@ def main():
         }
         """)
         vh_id = vh.json()['data']['id']
-        mapping_client = MappingClient(http_client)
+        mapping_client = MappingClient(session)
         m = mapping_client.create("""
         {
             "data" : {
@@ -57,7 +57,7 @@ def main():
         """)
         m_id = m.json()['data']['id']
         mapping_client.connect_virtual_host(m_id, vh_id)
-        backend_group_client = BackendGroupClient(http_client)
+        backend_group_client = BackendGroupClient(session)
         b = backend_group_client.create("""
         {
           "data" : {
@@ -83,8 +83,8 @@ def main():
         print("unexpected error occurs.", e)
         exit(1)
     finally:
-        if airlock_session:
-            airlock_session.terminate()
+        if session:
+            session.terminate()
 
 
 main()
