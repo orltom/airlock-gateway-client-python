@@ -24,8 +24,8 @@ class ResourceCRUDClient:
     def all(self):
         return self.client.get(self.base_path)
 
-    def get(self, id: str):
-        return self.client.get(f"{self.base_path}/{id}")
+    def get(self, resource_id: str):
+        return self.client.get(f"{self.base_path}/{resource_id}")
 
     def create(self, data):
         return self.client.post(
@@ -33,62 +33,62 @@ class ResourceCRUDClient:
             data=data
         )
 
-    def update(self, id: str, data):
+    def update(self, resource_id: str, data):
         return self.client.patch(
-            path=f"{self.base_path}/{id}",
+            path=f"{self.base_path}/{resource_id}",
             data=data
         )
 
-    def delete(self, id: str):
-        return self.client.delete(f"{self.base_path}/{id}")
+    def delete(self, resource_id: str):
+        return self.client.delete(f"{self.base_path}/{resource_id}")
 
-    def connect_to_resources(self, id: str, ref_id: str, ref_type: str):
+    def connect_to_resources(self, resource_id: str, relationship_id: str, relationship_type: str):
         return self.client.patch(
-            path=f"{self.base_path}/{id}/relationships/{ref_type}s",
+            path=f"{self.base_path}/{resource_id}/relationships/{relationship_type}s",
             data=(
                 "{"
                 "\"data\" : [{"
-                f"\"type\" : \"{ref_type}\","
-                f"\"id\" : \"{ref_id}\""
+                f"\"type\" : \"{relationship_type}\","
+                f"\"id\" : \"{relationship_id}\""
                 "}]"
                 "}"
             )
         )
 
-    def connect_to_resource(self, id: str, ref_id: str, ref_type: str):
+    def connect_to_resource(self, resource_id: str, relationship_id: str, relationship_type: str):
         return self.client.patch(
-            path=f"{self.base_path}/{id}/relationships/{ref_type}",
+            path=f"{self.base_path}/{resource_id}/relationships/{relationship_type}",
             data=(
                 "{"
                 "\"data\" : {"
-                f"\"type\" : \"{ref_type}\","
-                f"\"id\" : \"{ref_id}\""
+                f"\"type\" : \"{relationship_type}\","
+                f"\"id\" : \"{relationship_id}\""
                 "}"
                 "}"
             )
         )
 
-    def disconnect_to_resources(self, id: str, ref_id: str, ref_type: str):
+    def disconnect_to_resources(self, resource_id: str, relationship_id: str, relationship_type: str):
         return self.client.delete(
-            path=f"{self.base_path}/{id}/relationships/{ref_type}s",
+            path=f"{self.base_path}/{resource_id}/relationships/{relationship_type}s",
             data=(
                 "{"
                 "\"data\" : [{"
-                f"\"type\" : \"{ref_type}\","
-                f"\"id\" : \"{ref_id}\""
+                f"\"type\" : \"{relationship_type}\","
+                f"\"id\" : \"{relationship_id}\""
                 "}]"
                 "}"
             )
         )
 
-    def disconnect_to_resource(self, id: str, ref_id: str, ref_type: str):
+    def disconnect_to_resource(self, resource_id: str, relationship_id: str, relationship_type: str):
         return self.client.delete(
-            path=f"{self.base_path}/{id}/relationships/{ref_type}",
+            path=f"{self.base_path}/{resource_id}/relationships/{relationship_type}",
             data=(
                 "{"
                 "\"data\" : {"
-                f"\"type\" : \"{ref_type}\","
-                f"\"id\" : \"{ref_id}\""
+                f"\"type\" : \"{relationship_type}\","
+                f"\"id\" : \"{relationship_id}\""
                 "}"
                 "}"
             )
@@ -108,7 +108,7 @@ class AuthenticationClient:
         self.client = http_client
         self.token = token
 
-    def create(self):
+    def create(self) -> AirlockSession:
         resp = self.client.post(
             path="/airlock/rest/session/create",
             headers={
@@ -126,7 +126,7 @@ class ConfigurationClient:
         self.client = http_client
 
     def all(self):
-        return self.client.get(self.base_path)
+        return self.client.get("/airlock/rest/configuration/configurations")
 
     def save(self, comment: str):
         return self.client.post(
@@ -141,7 +141,7 @@ class ConfigurationClient:
         )
 
     def load(self, id: str):
-        return self.client.post(f"{self.base_path}/{id}")
+        return self.client.post(f"/airlock/rest/configuration/configurations/{id}")
 
     def load_current_active(self):
         return self.client.post("/airlock/rest/configuration/configurations/load-active")
@@ -162,7 +162,7 @@ class ConfigurationClient:
         return self.client.put(
             path="/airlock/rest/configuration/configurations/import",
             data=data,
-            headers={"Content-Tyoe": "application/zip"}
+            headers={"Content-Type": "application/zip"}
         )
 
 
@@ -171,7 +171,7 @@ class SystemTemplateClient:
         self.client = http_client
 
     def all(self):
-        return self.client.get("/configuration/templates/mappings")
+        return self.client.get("/airlock/rest/configuration/templates/mappings")
 
 
 class VirtualHostClient(ResourceCRUDClient):

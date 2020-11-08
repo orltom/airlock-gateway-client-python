@@ -11,8 +11,8 @@ class RequestLogger(object):
         resp = self.func(*args, **kwargs)
         duration = round((time() - start), 2)
 
-        path = self.find_path(args, kwargs)
-        headers = self.find_headers(args, kwargs)
+        path = RequestLogger.__find_path(args, kwargs)
+        headers = RequestLogger.__find_headers(args, kwargs)
 
         print(f"{self.func.__name__.upper()} {path} HTTP/1.1")
         for k, v in headers.items():
@@ -27,14 +27,16 @@ class RequestLogger(object):
         from functools import partial
         return partial(self.__call__, instance)
 
-    def find_path(self, args, kwargs):
+    @staticmethod
+    def __find_path(args, kwargs) -> str:
         if 'path' in kwargs:
             path = kwargs['path']
         else:
             path = args[1]
         return path
 
-    def find_headers(self, args, kwargs):
+    @staticmethod
+    def __find_headers(args, kwargs) -> dict:
         if 'headers' in kwargs:
             return kwargs['headers']
         elif len(args) >= 4:

@@ -18,7 +18,7 @@ class HttpClient:
     def patch(self, path: str, data=None, headers: dict = DEFAULT_HEADERS) -> type(Response):
         pass
 
-    def delete(self, path, headers: dict = DEFAULT_HEADERS) -> type(Response):
+    def delete(self, path: str, headers: dict = DEFAULT_HEADERS) -> type(Response):
         pass
 
 
