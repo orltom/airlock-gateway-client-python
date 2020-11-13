@@ -5,20 +5,60 @@ from typing import Final
 
 class HttpClient:
     DEFAULT_HEADERS: Final = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+    """Default HTTP header"""
 
     def get(self, path: str, headers: dict = DEFAULT_HEADERS) -> type(requests.Response):
+        """Sends a GET request
+
+        :param path: URL path
+        :param headers: HTTP headers
+        :return: HTTP response
+        """
         pass
 
     def post(self, path: str, data=None, headers: dict = DEFAULT_HEADERS) -> type(requests.Response):
+        """Sends a POST request.
+
+        Args:
+            path (str): URL path
+            data (str): HTTP body
+            headers (dic): HTTP headers
+
+        Returns
+            requests.Response: HTTP response
+        """
         pass
 
     def put(self, path: str, data=None, headers: dict = DEFAULT_HEADERS) -> type(requests.Response):
+        """
+        Sends a PUT request
+
+        :param path: URL path
+        :param data: HTTP body
+        :param headers: HTTP headers
+        :return: HTTP response
+        """
         pass
 
     def patch(self, path: str, data=None, headers: dict = DEFAULT_HEADERS) -> type(requests.Response):
+        """
+        Sends a PATCH request
+
+        :param path: URL path
+        :param data: HTTP body
+        :param headers: HTTP headers
+        :return: HTTP Response
+        """
         pass
 
     def delete(self, path: str, headers: dict = DEFAULT_HEADERS) -> type(requests.Response):
+        """
+        Sends a DELETE request
+
+        :param path: URL path
+        :param headers: HTTP Headers
+        :return: HTTP Response
+        """
         pass
 
 

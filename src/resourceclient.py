@@ -85,8 +85,11 @@ class ResourceCRUDClient:
         return self.client.delete(f"{self.base_path}/{resource_id}")
 
     def connect_to_resources(self, resource_id: str, relationship_id: str, relationship_type: str):
+        return self.connect_to_resources(resource_id, relationship_id, relationship_type + "s", relationship_type)
+
+    def connect_to_resources(self, resource_id: str, relationship_id: str, path: str, relationship_type: str):
         return self.client.patch(
-            path=f"{self.base_path}/{resource_id}/relationships/{relationship_type}s",
+            path=f"{self.base_path}/{resource_id}/relationships/{path}",
             data=(
                 "{"
                 "\"data\" : [{"
@@ -111,8 +114,11 @@ class ResourceCRUDClient:
         )
 
     def disconnect_to_resources(self, resource_id: str, relationship_id: str, relationship_type: str):
+        return self.disconnect_to_resource(resource_id, relationship_id, relationship_type + "s", relationship_type)
+
+    def disconnect_to_resources(self, resource_id: str, relationship_id: str, path: str, relationship_type: str):
         return self.client.delete(
-            path=f"{self.base_path}/{resource_id}/relationships/{relationship_type}s",
+            path=f"{self.base_path}/{resource_id}/relationships/{path}",
             data=(
                 "{"
                 "\"data\" : [{"
@@ -351,16 +357,16 @@ class IPAddressList(ResourceCRUDClient):
         super().__init__(session, "/airlock/rest/configuration/ip-address-lists")
 
     def connect_mapping_whitelist(self, resource_id: str, ref_id: str):
-        return self.connect_to_resources(resource_id, ref_id, "mapping")
+        return self.connect_to_resources(resource_id, ref_id, "mappings-whitelist", "mapping")
 
     def connect_mapping_blacklist(self, resource_id: str, ref_id: str):
-        return self.connect_to_resources(resource_id, ref_id, "mapping")
+        return self.connect_to_resources(resource_id, ref_id, "mappings-blacklist", "mapping")
 
     def connect_mapping_blacklist_exception(self, resource_id: str, ref_id: str):
-        return self.connect_to_resources(resource_id, ref_id, "mapping")
+        return self.connect_to_resources(resource_id, ref_id, "mappings-blacklist-exception", "mapping")
 
     def connect_mapping_request_frequency_filter(self, resource_id: str, ref_id: str):
-        return self.connect_to_resources(resource_id, ref_id, "mapping")
+        return self.connect_to_resources(resource_id, ref_id, "mappings-request-frequency-filter-whitelist", "mapping")
 
     def disconnect_mapping_whitelist(self, resource_id: str, ref_id: str):
         return self.disconnect_to_resources(resource_id, ref_id, "mappings-whitelist", "mapping")
@@ -372,7 +378,7 @@ class IPAddressList(ResourceCRUDClient):
         return self.disconnect_to_resources(resource_id, ref_id, "mappings-blacklist-exception", "mapping")
 
     def disconnect_mapping_request_frequency_filter(self, resource_id: str, ref_id: str):
-        return self.disconnect_to_resources(resource_id, ref_id, "mappings-request-frequency-filter-whitelist", "mapping")
+        return self.disconnect_to_resources(resource_id, ref_id, "mappings-request-frequency-filter-whitelist","mapping")
 
 
 class DynamicIPAddressBlackList(ResourceRUClient):

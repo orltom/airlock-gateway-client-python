@@ -2,7 +2,9 @@ from time import time
 
 
 class RequestLogger(object):
-
+    """
+    Print HTTP request and response status code.
+    """
     def __init__(self, f):
         self.func = f
 
