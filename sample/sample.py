@@ -1,5 +1,5 @@
-from src.resourceclient import VirtualHostClient, MappingClient, BackendGroupClient, ConfigurationClient, AuthenticationClient
-from src.httpclient import DefaultHttpClient
+from client.resourceclient import VirtualHostClient, MappingClient, BackendGroupClient, ConfigurationClient, AuthenticationClient
+from client.httpclient import DefaultHttpClient
 
 token = "eyJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiZGlyIn0..gae_uBITEwOzFNq54BJBww.IBSY" \
         "-TDvpktMCTF6KgRCHTebiYyNuSVOVbOw6XVkF-ek7eG-OJ7B7Q5CoYLZEZFju-74LQLWSO0P8js4eiegGufYFLqqJQmoH" \

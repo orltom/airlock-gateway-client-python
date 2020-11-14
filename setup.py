@@ -14,6 +14,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License"
     ],
     scripts=['waf-client'],
-    packages=['src'],
-    python_requires='>=3.8'
+    packages=['client'],
+    python_requires='>=3.8',
+    setup_requires=['Sphinx'],
 )
