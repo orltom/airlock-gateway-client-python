@@ -1,2 +1,5 @@
 .idea/
+docs/html/
 __pycache__
+/docs/source/modules.rst
+/docs/source/client.rst

@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+rm -rf ../html
+rm -f modules.rst client.rst
+sphinx-apidoc -f -o . ../../client/
+sphinx-build -W -b html . ../html
