@@ -23,7 +23,11 @@ setup(
         'requests==2.24.0'
     ],
     setup_requires=[
-        'Sphinx'
+        'sphinx',
+        'pytest-runner'
+    ],
+    tests_require=[
+        'pytest'
     ],
     cmdclass={'build_sphinx': BuildDocApiDoc}
 )
