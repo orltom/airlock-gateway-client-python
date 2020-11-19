@@ -6,3 +6,4 @@ __pycache__
 /doc/source/client.rst
 /dist/
 /airlock_gateway_rest_client.egg-info/
+/doc/build/

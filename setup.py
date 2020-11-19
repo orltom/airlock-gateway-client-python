@@ -1,10 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import setuptools
 from version import __version__
+from setuptools import setup
+from sphinx.setup_command import BuildDoc
+import subprocess
 
 
-setuptools.setup(
+class BuildDocApiDoc(BuildDoc, object):
+    """Execute sphinx-apidoc before trigger the sphinx-build"""
+    def run(self):
+        sphinx_apidoc = subprocess.run(["sphinx-apidoc", "-f", "-o", "doc/source/", "client/"])
+        if sphinx_apidoc.returncode != 0:
+            raise Exception("sphinx-apidoc failed.")
+        super(BuildDocApiDoc, self).run()
+
+
+setup(
     version=__version__,
     packages=['client'],
     python_requires='>=3.8',
@@ -13,5 +24,6 @@ setuptools.setup(
     ],
     setup_requires=[
         'Sphinx'
-    ]
+    ],
+    cmdclass={'build_sphinx': BuildDocApiDoc}
 )
