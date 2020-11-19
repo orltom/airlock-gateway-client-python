@@ -1,14 +1,16 @@
 import requests
 from .requestlogger import RequestLogger
 from typing import Final
+from abc import ABCMeta
 
 
-class HttpClient:
+class HttpClient(metaclass=ABCMeta):
+    """HTTP client which want implement HTTP request operation need to implement this interface."""
+
     DEFAULT_HEADERS: Final = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-    """Default HTTP header"""
 
     def get(self, path: str, headers: dict = DEFAULT_HEADERS) -> type(requests.Response):
-        """Sends a GET request
+        """Sends a HTTP GET request
 
         :param path: URL path
         :param headers: HTTP headers
@@ -17,21 +19,18 @@ class HttpClient:
         pass
 
     def post(self, path: str, data=None, headers: dict = DEFAULT_HEADERS) -> type(requests.Response):
-        """Sends a POST request.
+        """Sends a HTTP POST request.
 
-        Args:
-            path (str): URL path
-            data (str): HTTP body
-            headers (dic): HTTP headers
-
-        Returns
-            requests.Response: HTTP response
+        :param path: URL path
+        :param data: HTTP body
+        :param headers: HTTP headers
+        :return: HTTP response
         """
         pass
 
     def put(self, path: str, data=None, headers: dict = DEFAULT_HEADERS) -> type(requests.Response):
         """
-        Sends a PUT request
+        Sends a HTTP PUT request
 
         :param path: URL path
         :param data: HTTP body
@@ -42,7 +41,7 @@ class HttpClient:
 
     def patch(self, path: str, data=None, headers: dict = DEFAULT_HEADERS) -> type(requests.Response):
         """
-        Sends a PATCH request
+        Sends a HTTP PATCH request
 
         :param path: URL path
         :param data: HTTP body
@@ -53,7 +52,7 @@ class HttpClient:
 
     def delete(self, path: str, headers: dict = DEFAULT_HEADERS) -> type(requests.Response):
         """
-        Sends a DELETE request
+        Sends a HTTP DELETE request
 
         :param path: URL path
         :param headers: HTTP Headers
