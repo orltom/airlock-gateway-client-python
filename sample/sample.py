@@ -1,20 +1,18 @@
-from client.resourceclient import VirtualHostClient, MappingClient, BackendGroupClient, ConfigurationClient, AuthenticationClient
+from client.resourceclient import VirtualHostClient, MappingClient, BackendGroupClient, ConfigurationClient, \
+    AuthenticationClient
 from client.httpclient import DefaultHttpClient
 
-token = "eyJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiZGlyIn0..gae_uBITEwOzFNq54BJBww.IBSY" \
-        "-TDvpktMCTF6KgRCHTebiYyNuSVOVbOw6XVkF-ek7eG-OJ7B7Q5CoYLZEZFju-74LQLWSO0P8js4eiegGufYFLqqJQmoH" \
-        "-p1cT_m2Mv808ZzR9TfoTDDLKb9SXXSlnpWFnF9BwYIptFVKXICVF_8uU1FlGz9Eyi5zu6arXZ7tQXi" \
-        "-06M3T_ei7G0rTnMQ29MkjgxxjWtNn2MOgj4M27bPC-9wiLHniONF4av54tehe9cAeut_7dsfXo139Qvh6WZp8j6QdqO3NCSCl" \
-        "-UlUYIwHY_YeBooTyT2q0AiTGOQgztj-fa8NoenhG0dycrWwPha5gCHkwM7wPYu5Gxf3_IhjKesSnoTCwEQzrjUUj4RaIZ3VuuseXr-j" \
-        "-sx_9YyX2--pnLJ16KkeEojy4Rp3y0fdkzmlIL5lo6yTQSfBwjYf2kJcL_rIfb3DpA_o36U2E6mYN3oHAPWQW1mOhqnPAxbtuvJ9k" \
-        "G2Sfds3ozinuXzcj-lPCmWY-vEui_32xIBi1mYAmzbxFzM2dQRUl_Y1fCP8lC7gCdV7V0D1icOeo.Jfw7wqqC60bz_kR0XNHMGYGJ" \
-        "YN69OtpKEyQ-gET2NOQ "
-http_client = DefaultHttpClient("http://al-waf-docker-local-stack:8080")
+token = "...."
+host_url = "http://localhost:8080"
+http_client = DefaultHttpClient(host_url)
 
 
-def main():
+def integrate_application():
     try:
-        auth_client = AuthenticationClient(http_client=http_client, token=token)
+        auth_client = AuthenticationClient(
+            http_client=http_client,
+            token=token
+        )
         session = auth_client.create()
         config_client = ConfigurationClient(session)
         config_client.load_current_active()
@@ -85,6 +83,3 @@ def main():
     finally:
         if session:
             session.terminate()
-
-
-main()

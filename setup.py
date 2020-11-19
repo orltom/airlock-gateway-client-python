@@ -8,5 +8,10 @@ setuptools.setup(
     version=__version__,
     packages=['client'],
     python_requires='>=3.8',
-    setup_requires=['Sphinx'],
+    install_requires=[
+        'requests==2.24.0'
+    ],
+    setup_requires=[
+        'Sphinx'
+    ]
 )
