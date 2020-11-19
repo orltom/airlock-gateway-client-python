@@ -7,3 +7,4 @@ __pycache__
 /dist/
 /airlock_gateway_rest_client.egg-info/
 /doc/build/
+/build/
