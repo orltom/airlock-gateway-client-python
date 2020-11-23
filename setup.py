@@ -8,6 +8,7 @@ import subprocess
 
 class BuildDocApiDoc(BuildDoc, object):
     """Execute sphinx-apidoc before trigger the sphinx-build"""
+
     def run(self):
         sphinx_apidoc = subprocess.run(["sphinx-apidoc", "-f", "-o", "doc/source/", "client/"])
         if sphinx_apidoc.returncode != 0:
@@ -17,7 +18,10 @@ class BuildDocApiDoc(BuildDoc, object):
 
 setup(
     version=__version__,
-    packages=['client'],
+    packages=[
+        'client',
+        'workspace'
+    ],
     python_requires='>=3.8',
     install_requires=[
         'requests==2.24.0'
@@ -29,5 +33,7 @@ setup(
     tests_require=[
         'pytest'
     ],
-    cmdclass={'build_sphinx': BuildDocApiDoc}
+    cmdclass={
+        'build_sphinx': BuildDocApiDoc
+    }
 )
