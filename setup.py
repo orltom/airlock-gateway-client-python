@@ -28,6 +28,7 @@ setup(
     ],
     setup_requires=[
         'sphinx',
+        'sphinx_rtd_theme',
         'pytest-runner'
     ],
     tests_require=[

@@ -1,5 +1,6 @@
-from client.resourceclient import VirtualHostClient, MappingClient, BackendGroupClient, ConfigurationClient, AuthenticationClient
-from workspace.host import *
+from client.resourceclient import VirtualHostClient, MappingClient, BackendGroupClient, ConfigurationClient, \
+    AuthenticationClient
+from client.httpclient import DefaultHttpClient
 
 token = "...."
 host_url = "http://localhost:8080"
@@ -82,11 +83,3 @@ def integrate_application():
     finally:
         if session:
             session.terminate()
-
-
-# TODO
-# def fluent_call_enable_maintenance_page():
-#     host = Host(token, host_url)
-#     workspace = host.configurations().load_current_active()
-#     workspace.virtualhosts().find("hugo").update("\"enableMaintenancePage\" : \"true\"")
-#     workspace.activate()

@@ -21,7 +21,6 @@ class ConfigurationHistory:
     def load_current_active(self):
         configuration_client = ConfigurationClient(self.session)
         configuration_client.load_current_active()
-        return Workspace(session=self.session)
 
 
 class Workspace:
