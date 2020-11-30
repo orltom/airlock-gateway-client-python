@@ -8,3 +8,4 @@ __pycache__
 /airlock_gateway_rest_client.egg-info/
 /doc/build/
 /build/
+/venv/
