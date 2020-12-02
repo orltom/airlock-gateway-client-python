@@ -2,16 +2,28 @@
 ![](https://github.com/orltom/airlock-gateway-client-python/workflows/CI/badge.svg)
 
 ## Module client
-Provide all REST API endpoint as client.
+Provide for each resource endpoint an rest api client.
 
 ## Module workspace
-Coming soon: provide a fluent way to create or update an Airlock Gateway configuration.
-
-## Usage
-TODO
+Provide a fluent way to create or update an Airlock Gateway configuration.
 
 ## Documentation
-TODO: see ...
+For full documentation and tutorials, trigger:
+```
+python setup.py build_sphinx
+```
+
+## Build from Source
+```
+python setup.py test
+python setup.py build_sphinx
+python setup.py sdist bdist_wheel
+```
+
+## Contributing
+Please use the [GitHub issue tracker](https://github.com/orltom/airlock-gateway-client-python/issues) to submit bugs or request features.
 
 ## Disclaimer
-This software is provided as source code under an MIT license (see LICENSE)
+Copyright Orlando Tomás.
+
+Distributed under the terms of the MIT license, airlock-gateway-client is free and open source software.
