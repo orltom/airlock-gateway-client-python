@@ -388,7 +388,7 @@ class DynamicIPAddressBlackList(ResourceRUClient):
 
 class LicenseClient(ResourceRUClient):
     def __init__(self, session: type(AirlockSession)):
-        super().__init__(session, "/airlock/rest/configuration/log")
+        super().__init__(session, "/airlock/rest/configuration/license")
 
 
 class NodeClient(ResourceCRUDClient):
@@ -455,7 +455,7 @@ class APIPolicyServiceClient(ResourceCRUDClient):
 
 class LogSettingsClient(ResourceRUClient):
     def __init__(self, session: type(AirlockSession)):
-        super().__init__(session, "/airlock/rest/configuration/license")
+        super().__init__(session, "/airlock/rest/configuration/log")
 
 
 class ReportingSettingsClient(ResourceRUClient):
