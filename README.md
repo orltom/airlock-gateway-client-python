@@ -13,7 +13,24 @@ For full documentation and tutorials, trigger:
 python setup.py build_sphinx
 ```
 
-## Build from Source
+## Requirements
+- Python 3.8 or higher
+- virutalenv
+
+## Prepare development setup
+```
+python3 -m venv env
+source env/bin/activate
+pip install -r requirement.txt
+pip install -e .
+```
+
+## Run tests
+```
+python setup.py test
+```
+
+## Build from source
 ```
 python setup.py test
 python setup.py build_sphinx

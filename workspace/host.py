@@ -1,12 +1,13 @@
-from client.httpclient import DefaultHttpClient
-from client.resourceclient import AuthenticationClient
-from client.resourceclient import AirlockSession
-from client.resourceclient import ConfigurationClient
+from client.http_client import DefaultHttpClient
+from client.resource_client import AuthenticationClient
+from client.resource_client import AirlockSession
+from client.resource_client import ConfigurationClient
 
 
 class Host:
     def __init__(self, host_name: str, token: str):
-        self.auth_client = AuthenticationClient(http_client=DefaultHttpClient(host_name), token=token)
+        http_client = DefaultHttpClient(host_name)
+        self.auth_client = AuthenticationClient(http_client=http_client, token=token)
         self.session = None
 
     def configurations(self):
@@ -37,6 +38,17 @@ class Workspace:
     def activate(self, comment: str = ""):
         client = ConfigurationClient(self.session)
         client.activate(comment)
+
+
+class Mappings:
+    def all(self):
+        raise Exception
+
+    def find(self):
+        raise Exception
+
+    def add(self):
+        raise Exception
 
 
 class ResourceObject:

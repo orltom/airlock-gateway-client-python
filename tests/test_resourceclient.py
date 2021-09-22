@@ -1,5 +1,5 @@
-from client.httpclient import HttpClient
-from client.resourceclient import AirlockSession, AuthenticationClient
+from client.http_client import HttpClient
+from client.resource_client import AirlockSession, AuthenticationClient
 from requests import Response
 from pytest import raises
 

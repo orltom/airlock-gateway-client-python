@@ -1,5 +1,5 @@
 import requests
-from .requestlogger import RequestLogger
+from .request_logger import RequestLogger
 from typing import Final
 from abc import ABCMeta
 

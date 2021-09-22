@@ -1,6 +1,6 @@
-from client.resourceclient import VirtualHostClient, MappingClient, BackendGroupClient, ConfigurationClient, \
+from client.resource_client import VirtualHostClient, MappingClient, BackendGroupClient, ConfigurationClient, \
     AuthenticationClient
-from client.httpclient import DefaultHttpClient
+from client.http_client import DefaultHttpClient
 
 token = "...."
 host_url = "http://localhost:8080"
