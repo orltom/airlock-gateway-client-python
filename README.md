@@ -1,5 +1,6 @@
 # airlock-gateway-client-python
 ![](https://github.com/orltom/airlock-gateway-client-python/workflows/CI/badge.svg)
+[![License](https://img.shields.io/github/license/orltom/airlock-gateway-client-python)](/LICENSE)
 
 ## Module client
 Provide for each resource endpoint an rest api client.
