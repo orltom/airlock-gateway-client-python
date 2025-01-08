@@ -1,3 +1,5 @@
+from .airlock_session import AirlockSession
+
 class ResourceRUClient:
     def __init__(self, session: type(AirlockSession), base_path: str):
         self.client = session
